@@ -28,7 +28,7 @@ public class EmployeeController {
     }
 
     @PutMapping("/employees/{id}")
-    Employee replaceEmployee(@PathVariable Long id,
+    Employee replaceEmployee(@PathVariable long id,
                              @RequestBody Employee newEmployee) {
 
         return repository.findById(id)
@@ -44,15 +44,13 @@ public class EmployeeController {
     }
 
     @GetMapping("/employees/{id}")
-    Employee one(@PathVariable Long id) {
+    Employee one(@PathVariable long id) {
         return repository.findById(id)
                 .orElseThrow(() -> new EmployeeNotFoundException(id));
     }
 
     @DeleteMapping("/employees/{id}")
-    void deleteEmployee(@PathVariable Long id) {
+    void deleteEmployee(@PathVariable long id) {
         repository.deleteById(id);
     }
 }
-
-// Long -> long
