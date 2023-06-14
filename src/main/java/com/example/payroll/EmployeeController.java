@@ -28,8 +28,8 @@ public class EmployeeController {
     }
 
     @PutMapping("/employees/{id}")
-    Employee replaceEmployee(@RequestBody Employee newEmployee,
-                             @PathVariable Long id) {
+    Employee replaceEmployee(@PathVariable Long id,
+                             @RequestBody Employee newEmployee) {
 
         return repository.findById(id)
                 .map(employee -> {
