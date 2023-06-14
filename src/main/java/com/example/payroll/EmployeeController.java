@@ -1,6 +1,7 @@
 package com.example.payroll;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
@@ -21,15 +23,26 @@ public class EmployeeController {
 
     private final EmployeeRepository repository;
 
+//    @GetMapping("/employees")
+//    List<Employee> all() {
+//        return repository.findAll();
+//    }
+
     @GetMapping("/employees")
-    List<Employee> all() {
-        return repository.findAll();
+    CollectionModel<EntityModel<Employee>> all() {
+        List<EntityModel<Employee>> employees = repository.findAll().stream()
+                .map(employee -> EntityModel.of(employee,
+                        linkTo(methodOn(EmployeeController.class).one(employee.getId())).withSelfRel(),
+                        linkTo(methodOn(EmployeeController.class).all()).withRel("employees")))
+                .collect(Collectors.toList());
+        return CollectionModel.of(employees);
     }
 
     @PostMapping("/employees")
     Employee newEmployee(@RequestBody Employee newEmployee) {
         return repository.save(newEmployee);
     }
+    
 
     @GetMapping("/employees/{id}")
     EntityModel<Employee> one(@PathVariable long id) {
