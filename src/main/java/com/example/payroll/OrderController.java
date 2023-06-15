@@ -16,6 +16,10 @@ import java.util.List;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
+/**
+ * All the controller methods return one of Spring HATEOAS’s RepresentationModel subclasses
+ * to properly render hypermedia (or a wrapper around such a type).
+ */
 @RestController
 @RequiredArgsConstructor
 public class OrderController {
@@ -24,6 +28,10 @@ public class OrderController {
 
     private final OrderModelAssembler assembler;
 
+    /**
+     * handles the aggregate root
+     * @return orders
+     */
     @GetMapping("/orders")
     public CollectionModel<EntityModel<Order>> all() {
 
@@ -35,6 +43,11 @@ public class OrderController {
                 linkTo(methodOn(OrderController.class).all()).withSelfRel());
     }
 
+    /**
+     * handles single item: Order resource request
+     * @param id id of the item
+     * @return  If a corresponding item exists, it's returned; else, it throws {@link OrderNotFoundException}.
+     */
     @GetMapping("/orders/{id}")
     public EntityModel<Order> one(@PathVariable Long id) {
 
@@ -44,28 +57,20 @@ public class OrderController {
         return assembler.toModel(order);
     }
 
+    /**
+     * handles creating new orders, by starting them in the IN_PROGRESS state.
+     * @param order new item order
+     * @return new order
+     */
     @PostMapping("/orders")
     public ResponseEntity<EntityModel<Order>> newOrder(@RequestBody Order order) {
 
-        order.setStatus(Status.IN_PROGRESS);
-        Order newOrder = repository.save(order);
+        order.setStatus(Status.IN_PROGRESS); // set order-status to be in-progress
+        Order newOrder = repository.save(order); // and then save
 
         EntityModel<Order> entityModel = assembler.toModel(newOrder);
 
         return ResponseEntity.created(entityModel.getRequiredLink(IanaLinkRelations.SELF).toUri())
                 .body(entityModel);
     }
-
-    /*
-      @PostMapping("/orders")
-  ResponseEntity<EntityModel<Order>> newOrder(@RequestBody Order order) {
-
-    order.setStatus(Status.IN_PROGRESS);
-    Order newOrder = orderRepository.save(order);
-
-    return ResponseEntity //
-        .created(linkTo(methodOn(OrderController.class).one(newOrder.getId())).toUri()) //
-        .body(assembler.toModel(newOrder));
-  }
-     */
 }
