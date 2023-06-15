@@ -28,7 +28,11 @@ public class EmployeeController {
 
     private final EmployeeModelAssembler assembler;
 
-    @GetMapping("/employees")
+    public static final String EMPLOYEES = "/employees";
+
+    public static final String EMPLOYEES_ID = "/employees/{id}";
+
+    @GetMapping(EMPLOYEES)
     CollectionModel<EntityModel<Employee>> all() {
 
         List<EntityModel<Employee>> employees = repository.findAll().stream()
@@ -39,7 +43,7 @@ public class EmployeeController {
                 linkTo(methodOn(EmployeeController.class).all()).withSelfRel());
     }
 
-    @PostMapping("/employees")
+    @PostMapping(EMPLOYEES)
     ResponseEntity<EntityModel<Employee>> newEmployee(@RequestBody Employee newEmployee) {
 
         EntityModel<Employee> entityModel = assembler.toModel(repository.save(newEmployee));
@@ -48,7 +52,7 @@ public class EmployeeController {
                 .body(entityModel);
     }
 
-    @GetMapping("/employees/{id}")
+    @GetMapping(EMPLOYEES_ID)
     EntityModel<Employee> one(@PathVariable long id) {
 
         Employee employee = repository.findById(id)
@@ -57,7 +61,7 @@ public class EmployeeController {
         return assembler.toModel(employee);
     }
 
-    @PutMapping("/employees/{id}")
+    @PutMapping(EMPLOYEES_ID)
     ResponseEntity<EntityModel<Employee>> replaceEmployee(@PathVariable long id,
                                       @RequestBody Employee newEmployee) {
 
@@ -88,7 +92,7 @@ public class EmployeeController {
         }
     }
 
-    @DeleteMapping("/employees/{id}")
+    @DeleteMapping(EMPLOYEES_ID)
     ResponseEntity<Void> deleteEmployee(@PathVariable long id) {
 
         repository.deleteById(id);
