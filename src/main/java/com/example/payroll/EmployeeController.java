@@ -23,11 +23,6 @@ public class EmployeeController {
 
     private final EmployeeRepository repository;
 
-//    @GetMapping("/employees")
-//    List<Employee> all() {
-//        return repository.findAll();
-//    }
-
     @GetMapping("/employees")
     CollectionModel<EntityModel<Employee>> all() {
         List<EntityModel<Employee>> employees = repository.findAll().stream()
@@ -35,7 +30,8 @@ public class EmployeeController {
                         linkTo(methodOn(EmployeeController.class).one(employee.getId())).withSelfRel(),
                         linkTo(methodOn(EmployeeController.class).all()).withRel("employees")))
                 .collect(Collectors.toList());
-        return CollectionModel.of(employees);
+        return CollectionModel.of(employees,
+                linkTo(methodOn(EmployeeController.class).all()).withSelfRel());
     }
 
     @PostMapping("/employees")
