@@ -61,7 +61,7 @@ public class EmployeeController {
     ResponseEntity<?> replaceEmployee(@PathVariable long id,
                                       @RequestBody Employee newEmployee) {
 
-        AtomicBoolean created = new AtomicBoolean(false);
+        AtomicBoolean created = new AtomicBoolean(false); // flag
 
         // find existing entity by given (id, employee)
         Employee updatedEmployee = repository.findById(id)
