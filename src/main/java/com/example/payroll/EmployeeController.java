@@ -24,13 +24,12 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 @RequiredArgsConstructor
 public class EmployeeController {
 
+    public static final String EMPLOYEES = "/employees";
+    public static final String EMPLOYEES_ID = "/employees/{id}";
+
     private final EmployeeRepository repository;
 
     private final EmployeeModelAssembler assembler;
-
-    public static final String EMPLOYEES = "/employees";
-
-    public static final String EMPLOYEES_ID = "/employees/{id}";
 
     @GetMapping(EMPLOYEES)
     CollectionModel<EntityModel<Employee>> all() {
@@ -63,7 +62,7 @@ public class EmployeeController {
 
     @PutMapping(EMPLOYEES_ID)
     ResponseEntity<EntityModel<Employee>> replaceEmployee(@PathVariable long id,
-                                      @RequestBody Employee newEmployee) {
+                                                          @RequestBody Employee newEmployee) {
 
         AtomicBoolean created = new AtomicBoolean(false); // flag
 
