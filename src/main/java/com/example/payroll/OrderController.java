@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -74,7 +75,7 @@ public class OrderController {
     public ResponseEntity<EntityModel<Order>> newOrder(@RequestBody Order order) {
 
         order.setStatus(Status.IN_PROGRESS); // set order-status to be in-progress
-        Order newOrder = repository.save(order); // and then save
+        Order newOrder = repository.save(order); // and then save & response
 
         EntityModel<Order> entityModel = assembler.toModel(newOrder);
 
@@ -100,7 +101,21 @@ public class OrderController {
                         .withDetail("You can't cancel an order that is in the " + order.getStatus() + " status"));
     }
 
-    public Class<?> complete(Long id) {
-        return null;
+    @PutMapping("/orders/{id}/complete")
+    public ResponseEntity<?> complete(@PathVariable Long id) {
+
+        Order order = repository.findById(id)
+                .orElseThrow(() -> new OrderNotFoundException(id));
+
+        if (Status.IN_PROGRESS == order.getStatus()) {
+            order.setStatus(Status.COMPLETED); // set order-status to be completed
+            return ResponseEntity.ok(assembler.toModel(repository.save(order))); // and then save & response
+        }
+
+        return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED)
+                .header(HttpHeaders.CONTENT_TYPE, MediaTypes.HTTP_PROBLEM_DETAILS_JSON_VALUE)
+                .body(Problem.create()
+                        .withTitle("Method not allowed")
+                        .withDetail("You can't complete an order that is in the " + order.getStatus() + " status"));
     }
 }
