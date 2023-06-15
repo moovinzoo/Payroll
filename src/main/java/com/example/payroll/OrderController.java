@@ -73,4 +73,12 @@ public class OrderController {
         return ResponseEntity.created(entityModel.getRequiredLink(IanaLinkRelations.SELF).toUri())
                 .body(entityModel);
     }
+
+    public Class<?> cancel(Long id) {
+        return null;
+    }
+
+    public Class<?> complete(Long id) {
+        return null;
+    }
 }
