@@ -4,7 +4,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.IanaLinkRelations;
+import org.springframework.hateoas.MediaTypes;
+import org.springframework.hateoas.mediatype.problem.Problem;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -30,6 +35,7 @@ public class OrderController {
 
     /**
      * handles the aggregate root
+     *
      * @return orders
      */
     @GetMapping("/orders")
@@ -45,8 +51,9 @@ public class OrderController {
 
     /**
      * handles single item: Order resource request
+     *
      * @param id id of the item
-     * @return  If a corresponding item exists, it's returned; else, it throws {@link OrderNotFoundException}.
+     * @return If a corresponding item exists, it's returned; else, it throws {@link OrderNotFoundException}.
      */
     @GetMapping("/orders/{id}")
     public EntityModel<Order> one(@PathVariable Long id) {
@@ -59,6 +66,7 @@ public class OrderController {
 
     /**
      * handles creating new orders, by starting them in the IN_PROGRESS state.
+     *
      * @param order new item order
      * @return new order
      */
@@ -74,8 +82,22 @@ public class OrderController {
                 .body(entityModel);
     }
 
-    public Class<?> cancel(Long id) {
-        return null;
+    @DeleteMapping("/orders/{id}/cancel")
+    public ResponseEntity<?> cancel(@PathVariable Long id) {
+
+        Order order = repository.findById(id)
+                .orElseThrow(() -> new OrderNotFoundException(id));
+
+        if (Status.IN_PROGRESS == order.getStatus()) {
+            order.setStatus(Status.CANCELLED);
+            return ResponseEntity.ok(assembler.toModel(repository.save(order)));
+        }
+
+        return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED)
+                .header(HttpHeaders.CONTENT_TYPE, MediaTypes.HTTP_PROBLEM_DETAILS_JSON_VALUE)
+                .body(Problem.create()
+                        .withTitle("Method not allowed")
+                        .withDetail("You can't cancel an order that is in the " + order.getStatus() + " status"));
     }
 
     public Class<?> complete(Long id) {
