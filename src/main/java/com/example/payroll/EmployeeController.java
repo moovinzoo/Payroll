@@ -88,7 +88,6 @@ public class EmployeeController {
         }
     }
 
-    // TODO: 2023/06/15 Improve DELETE /employees/{id}
     @DeleteMapping("/employees/{id}")
     ResponseEntity<Void> deleteEmployee(@PathVariable long id) {
 
