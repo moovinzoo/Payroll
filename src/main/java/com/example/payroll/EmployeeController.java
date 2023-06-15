@@ -88,8 +88,16 @@ public class EmployeeController {
         }
     }
 
+    // TODO: 2023/06/15 Improve DELETE /employees/{id}
     @DeleteMapping("/employees/{id}")
-    void deleteEmployee(@PathVariable long id) {
+    ResponseEntity<?> deleteEmployee(@PathVariable long id) {
+
         repository.deleteById(id);
+
+        return ResponseEntity.noContent().build();
     }
+//    @DeleteMapping("/employees/{id}")
+//    void deleteEmployee(@PathVariable long id) {
+//        repository.deleteById(id);
+//    }
 }
