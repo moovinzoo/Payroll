@@ -40,7 +40,7 @@ public class EmployeeController {
     }
 
     @PostMapping("/employees")
-    ResponseEntity<?> newEmployee(@RequestBody Employee newEmployee) {
+    ResponseEntity<EntityModel<Employee>> newEmployee(@RequestBody Employee newEmployee) {
 
         EntityModel<Employee> entityModel = assembler.toModel(repository.save(newEmployee));
 
@@ -58,7 +58,7 @@ public class EmployeeController {
     }
 
     @PutMapping("/employees/{id}")
-    ResponseEntity<?> replaceEmployee(@PathVariable long id,
+    ResponseEntity<EntityModel<Employee>> replaceEmployee(@PathVariable long id,
                                       @RequestBody Employee newEmployee) {
 
         AtomicBoolean created = new AtomicBoolean(false); // flag
@@ -90,14 +90,10 @@ public class EmployeeController {
 
     // TODO: 2023/06/15 Improve DELETE /employees/{id}
     @DeleteMapping("/employees/{id}")
-    ResponseEntity<?> deleteEmployee(@PathVariable long id) {
+    ResponseEntity<Void> deleteEmployee(@PathVariable long id) {
 
         repository.deleteById(id);
 
         return ResponseEntity.noContent().build();
     }
-//    @DeleteMapping("/employees/{id}")
-//    void deleteEmployee(@PathVariable long id) {
-//        repository.deleteById(id);
-//    }
 }
