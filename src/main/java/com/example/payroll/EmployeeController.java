@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
@@ -60,6 +61,8 @@ public class EmployeeController {
     ResponseEntity<?> replaceEmployee(@PathVariable long id,
                                       @RequestBody Employee newEmployee) {
 
+        AtomicBoolean created = new AtomicBoolean(false);
+
         // find existing entity by given (id, employee)
         Employee updatedEmployee = repository.findById(id)
                 .map(employee -> {
@@ -69,15 +72,20 @@ public class EmployeeController {
                 }) // update existing entity
                 .orElseGet(() -> {
                     newEmployee.setId(id);
+                    created.set(true);
                     return repository.save(newEmployee);
                 }); // If not exist, insert the one
 
         // convert entity to entity-model
         EntityModel<Employee> entityModel = assembler.toModel(updatedEmployee);
 
-        // response entity as body with location header
-        return ResponseEntity.created(entityModel.getRequiredLink(IanaLinkRelations.SELF).toUri())
-                .body(entityModel);
+        if (created.get()) { // when new entity has been inserted
+            // response with location header
+            return ResponseEntity.created(entityModel.getRequiredLink(IanaLinkRelations.SELF).toUri())
+                    .body(entityModel);
+        } else {
+            return ResponseEntity.ok(entityModel);
+        }
     }
 
     @DeleteMapping("/employees/{id}")
